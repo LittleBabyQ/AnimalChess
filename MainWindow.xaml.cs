@@ -13,6 +13,7 @@ public partial class MainWindow : Window
     private readonly GameRuleService _rules = new();
     private readonly LocalizationService _localization = new();
     private readonly SettingsStorageService _settingsStorage = new();
+    private readonly AiMoveService _ai;
     private readonly GameStateService _game;
     private PlayerSide? _lastAnnouncedWinner;
     private ThemeOption _currentTheme = ThemeOption.All[0];
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         var savedSettings = _settingsStorage.Load();
         _game = new GameStateService(_rules, savedSettings);
+        _ai = new AiMoveService(_rules);
         _currentTheme = FindThemeByKey(savedSettings.Theme);
         _localization.SetLanguage(savedSettings.Language);
         InitializeThemeOptions();
@@ -31,6 +33,7 @@ public partial class MainWindow : Window
         ApplyTheme(_currentTheme);
         RenderBoard();
         UpdateStatus();
+        PlayAiTurnIfNeeded();
     }
 
     private void InitializeThemeOptions()
@@ -88,7 +91,8 @@ public partial class MainWindow : Window
                     ? new SolidColorBrush(Color.FromRgb(34, 211, 238))
                     : new SolidColorBrush(Color.FromRgb(55, 65, 81)),
             Background = GetCellBrush(cell),
-            Cursor = Cursors.Hand,
+            Cursor = _game.IsAiTurn() ? Cursors.Arrow : Cursors.Hand,
+            IsEnabled = !_game.IsAiTurn(),
             Tag = cell.Position
         };
         button.Click += CellButton_Click;
@@ -184,7 +188,7 @@ public partial class MainWindow : Window
 
     private void CellButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: BoardPosition position })
+        if (_game.IsAiTurn() || sender is not Button { Tag: BoardPosition position })
         {
             return;
         }
@@ -193,6 +197,7 @@ public partial class MainWindow : Window
         RenderBoard();
         UpdateStatus();
         ShowWinnerDialogIfNeeded();
+        PlayAiTurnIfNeeded();
     }
 
     private void UndoButton_Click(object sender, RoutedEventArgs e)
@@ -201,6 +206,7 @@ public partial class MainWindow : Window
         _lastAnnouncedWinner = null;
         RenderBoard();
         UpdateStatus();
+        PlayAiTurnIfNeeded();
     }
 
     private void RestartButton_Click(object sender, RoutedEventArgs e)
@@ -209,11 +215,12 @@ public partial class MainWindow : Window
         _lastAnnouncedWinner = null;
         RenderBoard();
         UpdateStatus();
+        PlayAiTurnIfNeeded();
     }
 
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
-        var settingsWindow = new SettingsWindow(_localization, _game.Settings.Language, _currentTheme)
+        var settingsWindow = new SettingsWindow(_localization, _game.Settings, _currentTheme)
         {
             Owner = this
         };
@@ -228,6 +235,9 @@ public partial class MainWindow : Window
         _game.Settings.Language = settingsWindow.SelectedLanguage;
         _currentTheme = settingsWindow.SelectedTheme;
         _game.Settings.Theme = _currentTheme.Key;
+        _game.Settings.Mode = settingsWindow.SelectedGameMode;
+        _game.Settings.AiDifficulty = settingsWindow.SelectedAiDifficulty;
+        _game.Settings.HumanSide = PlayerSide.Blue;
 
         ApplyLocalization();
         RefreshThemeOptionLabels();
@@ -237,6 +247,7 @@ public partial class MainWindow : Window
         _settingsStorage.Save(_game.Settings);
         RenderBoard();
         UpdateStatus();
+        PlayAiTurnIfNeeded();
     }
 
     private void RulesButton_Click(object sender, RoutedEventArgs e)
@@ -348,6 +359,12 @@ public partial class MainWindow : Window
         else
         {
             TurnText.Text = $"{_localization.Text("CurrentTurn")}: {_localization.SideName(state.CurrentTurn)}";
+            if (_game.Settings.Mode == GameMode.PlayerVsAi)
+            {
+                var difficultyKey = _game.Settings.AiDifficulty == AiDifficulty.Medium ? "AiMedium" : "AiEasy";
+                TurnText.Text += $"\n{_localization.Text("GameMode")}: {_localization.Text("ModePlayerVsAi")} / {_localization.Text(difficultyKey)}";
+            }
+
             if (state.SelectedPiece is not null)
             {
                 TurnText.Text += $"\n{_localization.Text("Selected")}: {state.SelectedPiece.EnglishName} {state.SelectedPiece.Rank}";
@@ -355,7 +372,35 @@ public partial class MainWindow : Window
         }
 
         CapturedText.Text = $"{_localization.Text("BlueLost")}: {_game.CapturedPieces(PlayerSide.Blue, _localization.Text("None"))}\n{_localization.Text("RedLost")}: {_game.CapturedPieces(PlayerSide.Red, _localization.Text("None"))}";
-        UndoButton.IsEnabled = state.HistoryCount > 0;
+        UndoButton.IsEnabled = state.HistoryCount > 0 && !_game.IsAiTurn();
+    }
+
+    private async void PlayAiTurnIfNeeded()
+    {
+        if (!_game.IsAiTurn())
+        {
+            return;
+        }
+
+        BoardGrid.IsEnabled = false;
+        UndoButton.IsEnabled = false;
+        await Task.Delay(450);
+
+        var state = _game.Snapshot;
+        var move = _ai.ChooseMove(state.Board, state.CurrentTurn, _game.Settings.AiDifficulty);
+        if (move is not null)
+        {
+            _game.TryMovePiece(move.Value.Piece, move.Value.Target);
+        }
+        else
+        {
+            _game.ClearSelectionForAi();
+        }
+
+        BoardGrid.IsEnabled = true;
+        RenderBoard();
+        UpdateStatus();
+        ShowWinnerDialogIfNeeded();
     }
 
     private void ShowWinnerDialogIfNeeded()

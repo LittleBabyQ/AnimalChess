@@ -60,7 +60,7 @@
                 </Border>
             </Grid>
 
-            <TextBlock x:Name="BuildLabel" Grid.Row="2" Foreground="#D1D5DB" FontSize="12" Margin="2,14,0,0" />
+            <TextBlock x:Name="BuildLabel" Grid.Row="2" Foreground="#D1D5DB" FontSize="12" Margin="2,14,0,0" Visibility="Collapsed" />
         </Grid>
     </Grid>
 </Window>

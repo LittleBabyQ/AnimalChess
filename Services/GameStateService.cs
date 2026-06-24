@@ -45,6 +45,38 @@ public sealed class GameStateService
         ClearSelection();
     }
 
+    public bool TryMovePiece(Piece piece, BoardPosition targetPosition)
+    {
+        if (_winner is not null || piece.Side != _currentTurn)
+        {
+            return false;
+        }
+
+        var legalMoves = _rules.GetLegalMoves(_board, piece);
+        if (!legalMoves.Contains(targetPosition))
+        {
+            return false;
+        }
+
+        _selectedPiece = piece;
+        _legalMoves = legalMoves;
+        MoveSelectedPiece(targetPosition);
+        return true;
+    }
+
+    public bool IsAiTurn()
+    {
+        return Settings.Mode == GameMode.PlayerVsAi
+            && Settings.AiDifficulty is AiDifficulty.Easy or AiDifficulty.Medium
+            && _winner is null
+            && _currentTurn != Settings.HumanSide;
+    }
+
+    public void ClearSelectionForAi()
+    {
+        ClearSelection();
+    }
+
     public void Restart()
     {
         _board = new Board();
