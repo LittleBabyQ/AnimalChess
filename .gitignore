@@ -1,0 +1,57 @@
+# Build output
+bin/
+obj/
+.vs/
+.vscode/
+TestResults/
+
+# Publish and package output
+AppPackages/
+Publish/
+publish/
+*.appx
+*.appxbundle
+*.appxupload
+*.msix
+*.msixbundle
+*.msixupload
+*.cer
+*.cer.*
+*.pfx
+*.pfx.*
+*.snk
+
+# User and local environment files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+*.DotSettings.user
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.cache
+Thumbs.db
+Desktop.ini
+
+# Rider / JetBrains
+.idea/
+
+# NuGet
+*.nupkg
+packages/
+.nuget/
+
+# OS metadata
+.DS_Store
+
+# Keep GitHub Pages source files
+!docs/
+!docs/**
+
+# Keep source assets, but never commit private signing keys
+!Assets/
+!Assets/**

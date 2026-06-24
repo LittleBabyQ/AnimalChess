@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Animal Chess Rules</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <nav class="topbar">
+      <div class="brand">Animal Chess</div>
+      <div class="langs">
+        <button data-lang="en" class="active">English</button>
+        <button data-lang="zhHans">简体中文</button>
+        <button data-lang="zhHant">繁體中文</button>
+      </div>
+    </nav>
+    <section class="hero-card">
+      <p class="eyebrow" data-i18n="eyebrow">Minimal strategy board game</p>
+      <h1 data-i18n="title">Animal Chess Rules</h1>
+      <p data-i18n="intro">Learn the board, pieces, terrain, captures and winning conditions for Animal Chess.</p>
+    </section>
+  </header>
+
+  <main class="content">
+    <section class="card">
+      <h2 data-i18n="goalTitle">Goal</h2>
+      <p data-i18n="goalBody">Enter the opponent den or capture all opponent pieces. Reaching the den is often faster than capturing every piece.</p>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="piecesTitle">Piece Rank</h2>
+      <div class="pieces">
+        <div><span>1</span><strong data-i18n="rat">Rat</strong></div>
+        <div><span>2</span><strong data-i18n="cat">Cat</strong></div>
+        <div><span>3</span><strong data-i18n="dog">Dog</strong></div>
+        <div><span>4</span><strong data-i18n="wolf">Wolf</strong></div>
+        <div><span>5</span><strong data-i18n="leopard">Leopard</strong></div>
+        <div><span>6</span><strong data-i18n="tiger">Tiger</strong></div>
+        <div><span>7</span><strong data-i18n="lion">Lion</strong></div>
+        <div><span>8</span><strong data-i18n="elephant">Elephant</strong></div>
+      </div>
+      <p data-i18n="piecesBody">A piece normally captures an enemy piece with equal or lower rank. Rat can capture Elephant, but Elephant cannot capture Rat.</p>
+    </section>
+
+    <section class="grid-two">
+      <article class="card">
+        <h2 data-i18n="moveTitle">Movement</h2>
+        <p data-i18n="moveBody">Most animals move one square horizontally or vertically. They cannot move diagonally and cannot move onto a friendly piece.</p>
+      </article>
+      <article class="card">
+        <h2 data-i18n="captureTitle">Capture</h2>
+        <p data-i18n="captureBody">Higher-ranked animals can capture lower-ranked animals. Equal rank can capture equal rank. Traps reduce enemy rank to 0.</p>
+      </article>
+    </section>
+
+    <section class="grid-two">
+      <article class="card accent-blue">
+        <h2 data-i18n="riverTitle">River</h2>
+        <p data-i18n="riverBody">Only Rat can enter river squares. Lion and Tiger can jump across river lanes, but a Rat in the river blocks the jump.</p>
+      </article>
+      <article class="card accent-gold">
+        <h2 data-i18n="denTitle">Trap & Den</h2>
+        <p data-i18n="denBody">You cannot enter your own den. Enter the opponent den to win. Traps weaken enemy pieces standing on them.</p>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2 data-i18n="tipsTitle">Beginner Tips</h2>
+      <ul>
+        <li data-i18n="tip1">Do not expose Elephant to the opponent Rat.</li>
+        <li data-i18n="tip2">Use Lion and Tiger jumps to attack quickly.</li>
+        <li data-i18n="tip3">Control traps near the den.</li>
+        <li data-i18n="tip4">Sometimes entering the den is faster than capturing all pieces.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Animal Chess / 极简斗兽棋 / 極簡鬥獸棋</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
